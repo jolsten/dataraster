@@ -109,12 +109,3 @@ def app(
         img_column.contents_changed()
 
     window.close()
-
-
-@click.command()
-@click.option('-p', '--pixel-size', type=click.Choice([str(x) for x in [1,2,3,4,5]]), default='1')
-@click.option('-c', '--color-map', type=click.Choice(COLORMAP), default=COLORMAP[0])
-def cli(pixel_size, color_map):
-    pixel_size = int(pixel_size)
-    data = generate_vertical_data((256*4, 512))
-    app(data, 'numpy', pixel_size, color_map)
