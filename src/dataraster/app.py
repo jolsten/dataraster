@@ -1,11 +1,12 @@
-import click
 import PySimpleGUI as sg
 import numpy as np
+from numpy.typing import ArrayLike
 import io
 import matplotlib.pyplot as plt
 from PIL import Image
 
 
+MAX_PIXEL_SIZE = 5
 COLORMAP = [
     'plasma', 'viridis', 'inferno', 'magma', 'cividis',
     'gist_rainbow', 'rainbow', 'jet', 'nipy_spectral',
@@ -31,30 +32,14 @@ def update_image(
     return obuf.getvalue()
 
 
-def generate_random_data(size: tuple) -> np.ndarray:
-    return np.random.choice(range(256), size)
-
-
-def generate_horizontal_data(size: tuple) -> np.ndarray:
-    nrows, ncols = size
-    row = np.arange(ncols).astype('uint8')
-    data = np.array([row] * nrows).astype('uint8')
-    return data
-
-
-def generate_vertical_data(size: tuple) -> np.ndarray:
-    nrows, ncols = size
-    row = np.arange(nrows).astype('uint8')
-    data = np.array([row] * ncols).astype('uint8').transpose()
-    return np.ascontiguousarray(data)
-
-
 def app(
-        data: np.ndarray,
+        data: ArrayLike,
         name: str = 'Data Raster',
         pixel_size: int = 1,
         color_map: str = COLORMAP[0],
     ) -> None:
+
+    data = np.asarray(data)
     
     img_elem = sg.Image(update_image(data, pixel_size, cmap=color_map), key='-IMAGE-')
     img_column = sg.Column(
@@ -65,8 +50,8 @@ def app(
     )
 
     menu_def = [
-        ['&File', ['&Save', '&Close']],
-        ['&Color', COLORMAP],
+        ['&File', ['&Close::-CLOSE-']],
+        ['&Color', [f'{c}::-COLORMAP-' for c in COLORMAP]],
     ]
 
     layout = [
@@ -75,10 +60,9 @@ def app(
         ],
         [
             sg.Text('Pixel Size'),
-            sg.Spin([1,2,3,4,5], initial_value=pixel_size, key='-PIXELSIZE-', change_submits=True),
+            sg.Spin(list(range(MAX_PIXEL_SIZE)), initial_value=pixel_size, key='-PIXELSIZE-', change_submits=True),
         ],
         [img_column],
-        [sg.Button('Close', key='-CLOSE-')],
     ]
 
     window = sg.Window(
@@ -93,16 +77,14 @@ def app(
     while True:
         event, values = window.read()
 
-        print(event, values)
-
-        if event in (sg.WIN_CLOSED, 'Close'):
+        if event in (sg.WIN_CLOSED, 'Close::-CLOSE-'):
             break
 
         elif event == '-PIXELSIZE-':
             pixel_size = values['-PIXELSIZE-']
 
-        elif event in COLORMAP:
-            color_map = event
+        elif '-COLORMAP-' in event:
+            color_map = event.replace('::-COLORMAP-','')
 
         img_elem.update(data=update_image(data, pixel_size, cmap=color_map))
         img_column.set_size([int(s*pixel_size+40) for s in img_column.get_size()])
