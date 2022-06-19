@@ -1,10 +1,10 @@
-
 import click
 import PySimpleGUI as sg
 import numpy as np
 import io
 import matplotlib.pyplot as plt
 from PIL import Image
+
 
 COLORMAP = [
     'plasma', 'viridis', 'inferno', 'magma', 'cividis',
