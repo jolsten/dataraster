@@ -35,11 +35,26 @@ def data_to_imagebytes(
 
 def app(
         data: ArrayLike,
-        name: str = 'Data Raster',
+        window_name: str = 'Data Raster',
         pixel_size: int = 1,
         color_map: str = COLORMAP[0],
     ) -> None:
-    '''Open a PySimpleGUI window displaying a raster of a 2d numpy array.'''
+    '''Open a PySimpleGUI window displaying a raster of a 2d numpy array.
+    
+    Params
+    ------
+    data: ArrayLike
+        A 2-d numpy ndarray with values to raster as an image.
+    
+    window_name: str (default "Data Raster")
+        The name to give the main window.
+    
+    pixel_size: int (default: 1)
+        The width/height in pixels of each element in the array, as drawn in the window.
+
+    color_map: str (default: "plasma")
+        The matplotlib colormap for the rastered image.
+    '''
 
     data = np.asarray(data)
     
@@ -68,7 +83,7 @@ def app(
     ]
 
     window = sg.Window(
-        name,
+        window_name,
         layout,
         finalize=True,
         resizable=True,
