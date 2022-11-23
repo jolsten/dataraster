@@ -1,8 +1,8 @@
-import PySimpleGUI as sg
-import numpy as np
-from numpy.typing import ArrayLike
 import io
 import matplotlib.pyplot as plt
+import numpy as np
+import PySimpleGUI as sg
+from numpy.typing import ArrayLike
 from PIL import Image
 
 
@@ -12,12 +12,14 @@ COLORMAP = [
     'gist_rainbow', 'rainbow', 'jet', 'nipy_spectral',
 ]
 
-def data_to_imagebytes(
+def make_image(
         data: np.ndarray,
         pixel_size: int,
         cmap: str = 'inferno',
     ) -> bytes:
-    '''Convert a 2d numpy array to a PNG image as a bytes object using matplotlib's "imsave()"'''
+    '''Convert a 2d numpy array to a PNG image bytes-object.
+    
+    '''
 
     # Convert ndarray into image using matplotlib's imsave
     ibuf = io.BytesIO()
@@ -39,7 +41,7 @@ def app(
         pixel_size: int = 1,
         color_map: str = COLORMAP[0],
     ) -> None:
-    '''Open a PySimpleGUI window displaying a raster of a 2d numpy array.
+    '''Display a raster of a 2d numpy array.
     
     Params
     ------
@@ -58,7 +60,7 @@ def app(
 
     data = np.asarray(data)
     
-    img_elem = sg.Image(data_to_imagebytes(data, pixel_size, cmap=color_map), key='-IMAGE-')
+    img_elem = sg.Image(make_image(data, pixel_size, cmap=color_map), key='-IMAGE-')
     img_column = sg.Column(
         [[img_elem]],
         scrollable=True,
@@ -104,7 +106,7 @@ def app(
             color_map = event.replace('::-COLORMAP-','')
 
         img_elem.update(
-            data=data_to_imagebytes(data, pixel_size, cmap=color_map)
+            data=make_image(data, pixel_size, cmap=color_map)
         )
         img_column.set_size([int(s*pixel_size+40) for s in img_column.get_size()])
         img_column.contents_changed()
